@@ -1,6 +1,7 @@
 var generators = require('yeoman-generator');
 var yosay = require('yosay');
 var _ = require('lodash');
+var mkdirp = require('mkdirp');
 
 module.exports = generators.Base.extend({
 
@@ -15,20 +16,13 @@ module.exports = generators.Base.extend({
       type: Boolean
     });
 
-    // Static input
-    this.option('email', {
-      desc: 'Your email address',
-      type: String,
-      defaults: 'no@email.com'
-    });
-    //access with this.options['email']
-
   },
 
 
   initializing: function () {
-    console.log('initializing is running');
+    this.log('initializing is running');
     this.pkg = require('../package.json');
+    this.dateCreated = Date();
   },
   
 
@@ -42,9 +36,14 @@ module.exports = generators.Base.extend({
 
     var prompts = [{
       type    : 'input',
-      name    : 'name',
-      message : 'Your business name',
-      default : _.camelCase(this.appname) // Default to current folder name
+      name    : 'businessName',
+      message : 'Your Business Name',
+      default : _.startCase(this.appname) // Default to current folder name
+    }, {
+      type    : 'input',
+      name    : 'ownerName',
+      message : 'Your Name',
+      store   : true
     }, {
       type: 'checkbox',
       name: 'frontends',
@@ -85,6 +84,8 @@ module.exports = generators.Base.extend({
 
       // manually deal with the response, get back and store the results.
       // we change a bit this way of doing to automatically do this in the self.prompt() method.
+      this.businessName = answers.businessName;
+      this.ownerName = answers.ownerName;
       this.includeWeb = hasFrontend('includeWeb');
       this.includeAndroid = hasFrontend('includeAndroid');
       this.includeIOS = hasFrontend('includeIOS');
@@ -100,42 +101,83 @@ module.exports = generators.Base.extend({
 
 
   configuring: function () {
-    console.log('configuring is running');
+    this.log('configuring is running');
   },
 
 
 
 
   default: function () {
-    console.log('default is running');
+    this.log('default is running');
   },
 
 
 
 
   writing: function () {
-    console.log('writing is running');
+    this.log('writing is running');
+
+    // Init ReadMe file
+    this.fs.copyTpl(
+      this.templatePath('README.md'),
+      this.destinationPath('README.md'),
+      { businessName: this.businessName,
+        dateCreated: this.dateCreated,
+        ownerName: this.ownerName
+      }
+    );
+
+    // Add backend
+    mkdirp('code/backend');
+
+    // Add frontend(s)
+    if(this.includeWeb) {
+      mkdirp('code/web');
+    }
+
+    if(this.includeAndroid) {
+      mkdirp('code/android');
+    }
+
+    if(this.includeIOS) {
+      mkdirp('code/ios');
+    }
+
+    if(this.includeMac) {
+      mkdirp('code/mac');
+    }
+
+    if(this.includeLinux) {
+      mkdirp('code/linux');
+    }
+
+    if(this.includeWindows) {
+      mkdirp('code/windows');
+    }
+
+    //this.directory('code/android', 'code/android');
+
   },
 
 
 
 
   conflicts: function () {
-    console.log('conflicts is running');
+    this.log('conflicts is running');
   },
 
 
 
 
   install: function () {
-    console.log('install is running');
+    this.log('install is running');
   },
 
 
 
 
   end: function () {
-    console.log('end is running');
+    this.log('end is running');
   },
 
 
@@ -151,10 +193,10 @@ module.exports = generators.Base.extend({
 
 
   method1: function () {
-    console.log('method 1 just ran');
+    this.log('method 1 just ran');
   },
   method2: function () {
-    console.log('method 2 just ran');
+    this.log('method 2 just ran');
   }
 
 });

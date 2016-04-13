@@ -1,0 +1,31 @@
+{
+  "name": "generator-business",
+  "version": "0.1.0",
+  "description": "This is used to generate a new business structure",
+  "main": "index.js",
+  "files": [
+    "app",
+    "router"
+  ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/iRomain/generator-business.git"
+  },
+  "keywords": [
+    "yeoman-generator"
+  ],
+  "author": "Romain Barissat",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/iRomain/generator-business/issues"
+  },
+  "homepage": "https://github.com/iRomain/generator-business#readme",
+  "dependencies": {
+    "lodash": "^4.11.0",
+    "yeoman-generator": "^0.22.5",
+    "yosay": "^1.1.1"
+  }
+}

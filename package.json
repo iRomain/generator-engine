@@ -1,7 +1,7 @@
 {
-  "name": "generator-business",
+  "name": "generator-engine",
   "version": "0.1.0",
-  "description": "This is used to generate a new business structure",
+  "description": "This is used to generate a new engineering structure",
   "main": "index.js",
   "files": [
     "app",
@@ -12,7 +12,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/iRomain/generator-business.git"
+    "url": "git+https://github.com/iRomain/generator-engine.git"
   },
   "keywords": [
     "yeoman-generator"
@@ -20,9 +20,9 @@
   "author": "Romain Barissat",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/iRomain/generator-business/issues"
+    "url": "https://github.com/iRomain/generator-engine/issues"
   },
-  "homepage": "https://github.com/iRomain/generator-business#readme",
+  "homepage": "https://github.com/iRomain/generator-engine#readme",
   "dependencies": {
     "lodash": "^4.11.0",
     "mkdirp": "^0.5.1",

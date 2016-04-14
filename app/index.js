@@ -170,13 +170,11 @@ module.exports = generators.Base.extend({
       this.spawnCommandSync('git', ['clone', 'https://github.com/iRomain/api-bootstrap.git', 'code/backend']); 
 
       if(this.createRepos) {
-                
         process.chdir("code/backend/");
         this.spawnCommandSync('git', ['add', '.']);
         this.spawnCommandSync('git', ['commit', '-m"Initial commit"']);
         this.spawnCommandSync('git', ['remote', 'remove', 'origin']);
         this.spawnCommandSync('hub', ['create', '-d', 'Backend for ' + this.domainName, _.kebabCase(this.businessName) + '-backend']);
-        //this.spawnCommandSync('git', ['remote', 'add', 'origin', repo]);
         this.spawnCommandSync('git', ['push', '--set-upstream', 'origin', 'master']);
       }
     }

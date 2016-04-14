@@ -1,20 +1,18 @@
 var generators = require('yeoman-generator');
-var yosay = require('yosay');
+var cowsay = require('cowsay');
 var _ = require('lodash');
 var mkdirp = require('mkdirp');
+var optionOrPrompt = require('yeoman-option-or-prompt');
+
 
 module.exports = generators.Base.extend({
+
+  _optionOrPrompt: optionOrPrompt,
 
   constructor: function () {
     
     // Calling the super constructor is important so our generator is correctly set up
     generators.Base.apply(this, arguments);
-
-    // Skip welcome message
-    this.option('skip-welcome-message', {
-      desc: 'Skips the welcome message',
-      type: Boolean
-    });
 
   },
 
@@ -30,20 +28,57 @@ module.exports = generators.Base.extend({
 
     var done = this.async();
 
-    if (!this.options['skip-welcome-message']) {
-      this.log(yosay('Welcome to the business generator!'));
-    }
+    this.log(cowsay.think({
+        text : 'Let\'s prepare the engine...',
+        f: 'default'
+    }));
 
-    var prompts = [{
+    var prompts = [
+
+    // Provided by generator-business (if used within)
+    {
       type    : 'input',
       name    : 'businessName',
       message : 'Your Business Name',
-      default : _.startCase(this.appname) // Default to current folder name
+      default : _.startCase(this.appname)
     }, {
       type    : 'input',
       name    : 'ownerName',
       message : 'Your Name',
       store   : true
+    }, {
+      type    : 'input',
+      name    : 'ownerEmail',
+      message : 'Your Email',
+      store   : true
+    }, {
+      type    : 'input',
+      name    : 'domainName',
+      message : 'Your business domain name:',
+      default : _.kebabCase(this.appname) + '.com'
+    }, {
+      type: 'confirm',
+      name: 'generateDesign',
+      message: 'Do you wish to bootstrap some design?',
+      default: false
+    }, {
+      type: 'confirm',
+      name: 'generateMarketing',
+      message: 'Do you wish to bootstrap some marketing?',
+      default: false
+    }, {
+      type: 'confirm',
+      name: 'generateSEO',
+      message: 'Do you wish to generate some SEO?',
+      default: false
+    },
+
+    // Not provided by generator-business (if used within)
+    {
+      type: 'confirm',
+      name: 'includeBackend',
+      message: 'Do you wish to build a backend?',
+      default: true
     }, {
       type: 'checkbox',
       name: 'frontends',
@@ -73,19 +108,30 @@ module.exports = generators.Base.extend({
           value: 'includeWindows',
           checked: false
         }]
+    }, {
+      type: 'confirm',
+      name: 'createRepos',
+      message: 'Do you wish to create the accounts and repositories?',
+      default: false
     }];
 
-    this.prompt(prompts, function (answers) {
+    this._optionOrPrompt(prompts, function (answers) {
+      
+      this.answers = answers;
       var frontends = answers.frontends;
 
       function hasFrontend(front) {
         return frontends && frontends.indexOf(front) !== -1;
       };
 
-      // manually deal with the response, get back and store the results.
-      // we change a bit this way of doing to automatically do this in the self.prompt() method.
       this.businessName = answers.businessName;
       this.ownerName = answers.ownerName;
+      this.ownerEmail = answers.ownerEmail;
+      this.domainName = answers.domainName;
+
+      this.includeBackend = answers.includeBackend;
+      this.createRepos = answers.createRepos;
+
       this.includeWeb = hasFrontend('includeWeb');
       this.includeAndroid = hasFrontend('includeAndroid');
       this.includeIOS = hasFrontend('includeIOS');
@@ -117,19 +163,24 @@ module.exports = generators.Base.extend({
   writing: function () {
     this.log('writing is running');
 
-    // Init ReadMe file
-    this.fs.copyTpl(
-      this.templatePath('README.md'),
-      this.destinationPath('README.md'),
-      { businessName: this.businessName,
-        dateCreated: this.dateCreated,
-        ownerName: this.ownerName
-      }
-    );
-
     // Add backend
-    mkdirp('code/backend');
+    if(this.includeBackend) {
 
+      mkdirp('code');
+      this.spawnCommandSync('git', ['clone', 'https://github.com/iRomain/api-bootstrap.git', 'code/backend']); 
+
+      if(this.createRepos) {
+                
+        process.chdir("code/backend/");
+        this.spawnCommandSync('git', ['add', '.']);
+        this.spawnCommandSync('git', ['commit', '-m"Initial commit"']);
+        this.spawnCommandSync('git', ['remote', 'remove', 'origin']);
+        this.spawnCommandSync('hub', ['create', '-d', 'Backend for ' + this.domainName, _.kebabCase(this.businessName) + '-backend']);
+        //this.spawnCommandSync('git', ['remote', 'add', 'origin', repo]);
+        this.spawnCommandSync('git', ['push', '--set-upstream', 'origin', 'master']);
+      }
+    }
+    
     // Add frontend(s)
     if(this.includeWeb) {
       mkdirp('code/web');
@@ -189,7 +240,10 @@ module.exports = generators.Base.extend({
 
 
 
-
+  _createGithubRepo: function (appendix) {
+    var repo = _.kebabCase(this.businessName) + '-' + appendix;
+    return 'https://github.com/iRomain/' + repo;
+  },
 
 
   method1: function () {
